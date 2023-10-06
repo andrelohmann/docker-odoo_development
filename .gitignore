@@ -1,0 +1,11 @@
+.vagrant
+mailpit-data/*
+!mailpit-data/.gitkeep
+pgadmin-data/*
+!pgadmin-data/.gitkeep
+postgres-data/*
+!postgres-data/.gitkeep
+odoo-data/*
+!odoo-data/.gitkeep
+odoo-etc/*
+!odoo-etc/odoo.conf

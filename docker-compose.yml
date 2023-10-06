@@ -1,0 +1,71 @@
+version: '2'
+services:
+  db:
+    image: postgres:15
+    user: root
+    environment:
+    - POSTGRES_USER=odoo
+    - POSTGRES_PASSWORD=odoo16
+    - POSTGRES_DB=postgres
+    restart: always             # run as a service
+    volumes:
+    - ./postgres-data:/var/lib/postgresql/data
+
+  mailpit: # https://github.com/axllent/mailpit
+    image: axllent/mailpit
+    ports:
+    - "8025:8025"
+    - "1025:1025"
+    environment:
+    - TZ=Europe/Berlin
+    - MP_DATA_FILE=/data/mailpit.db
+    volumes:
+    - ./mailpit-data:/data
+    restart: unless-stopped
+
+  odoo16: # https://hub.docker.com/_/odoo/ # https://github.com/minhng92/odoo-16-docker-compose
+    #image: odoo:16
+    image: ghcr.io/andrelohmann/docker-odoo_development:main
+    #build:
+    #  context: ./docker/
+    #  dockerfile: Dockerfile
+    user: root
+    depends_on:
+    - db
+    - mailpit
+    ports:
+    - "10016:8069"
+    - "20016:8072" # live chat
+    tty: true
+    command: --
+    environment:
+    - HOST=db
+    - USER=odoo
+    - PASSWORD=odoo16
+    volumes:
+    #- /etc/timezone:/etc/timezone:ro
+    #- /etc/localtime:/etc/localtime:ro
+    # - ./entrypoint.sh:/entrypoint.sh   # if you want to install additional Python packages, uncomment this line!
+    - ./odoo-addons:/mnt/extra-addons
+    - ./odoo-etc:/etc/odoo
+    - ./odoo-data:/var/lib/odoo
+    restart: always # run as service
+
+  pgadmin: # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html
+    image: dpage/pgadmin4:latest
+    user: root
+    depends_on:
+    - db
+    - mailpit
+    ports:
+    - "8050:5050"
+    environment:
+    - PGADMIN_DEFAULT_EMAIL=admin@test.com
+    - PGADMIN_DEFAULT_PASSWORD=admin
+    - PGADMIN_DISABLE_POSTFIX=1
+    - PGADMIN_LISTEN_PORT=5050
+    - PGADMIN_CONFIG_MAIL_SERVER="mailpit"
+    - PGADMIN_CONFIG_MAIL_PORT=1025
+    volumes:
+    - ./pgadmin-data:/var/lib/pgadmin
+    restart: always # run as service
