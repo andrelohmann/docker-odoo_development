@@ -3,8 +3,7 @@ mailpit-data/*
 !mailpit-data/.gitkeep
 pgadmin-data/*
 !pgadmin-data/.gitkeep
-postgres-data/*
-!postgres-data/.gitkeep
+postgres-data
 odoo-data/*
 !odoo-data/.gitkeep
 odoo-etc/*
